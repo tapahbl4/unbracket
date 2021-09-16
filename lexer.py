@@ -1,10 +1,9 @@
 import re
-from enum import Enum
-from dataclasses import dataclass
+from tokens import Token, TokenType, TokenList
 
 KEYWORDS = ['let', 'function', 'print', 'return', 'import', 'input', 'if', 'then', 'else', 'elif', 'switch', 'case',
-            'default', 'for', 'end', 'while', 'do', 'to', 'and', 'or', 'not']
-OPS = ['==', '=', '+', '-', '*', '/', '%', '^', ':', '(', ')', '[', ']']
+            'default', 'for', 'end', 'while', 'do', 'to', 'and', 'or', 'not', 'break', 'continue', 'array']
+OPS = ['==', '=', '+', '-', '*', '/', '%', '^', ':']
 TYPES = ['number', 'string', 'float', 'boolean']
 ESCAPED_STRING = '__ESCAPED_STRING__'
 
@@ -18,36 +17,8 @@ regexps = {
 }
 
 
-class TokenType(Enum):
-    KEYWORD = 1
-    OPERATION = 2
-    VARIABLE = 3
-    FUNCTION = 4
-    STD_VARIABLE = 5
-    STD_FUNCTION = 6
-    UNKNOWN = 7
-    TYPE = 8
-    NEWLINE = 9
-    LITERAL_STRING = 10
-    LITERAL_NUMBER = 11
-    LITERAL_FLOAT = 12
-    LITERAL_BOOLEAN = 13
-
-    def __str__(self):
-        return self.name
-
-
-@dataclass
-class Token:
-    type: TokenType
-    value: str = None
-
-
 def parse_tokens(string_list):
-    token_line_list = []
-    escaped_strings = []
-    escaped_counter = 0
-    prev_token = None
+    token_line_list, escaped_strings, escaped_counter, prev_token = [], [], 0, None
     for line in string_list:
         escaped = re.search(regexps['escaped'], line)
         if escaped:
@@ -57,13 +28,13 @@ def parse_tokens(string_list):
         for op in OPS:
             line = str(line).replace(op, f' %s ' % op)
         pre_tokens = str(line).split()
-        tokens = []
-        for token in pre_tokens:
-            if token == ESCAPED_STRING:
-                token = escaped_strings[escaped_counter]
+        tokens = TokenList()
+        for t in pre_tokens:
+            if t == ESCAPED_STRING:
+                t = escaped_strings[escaped_counter]
                 escaped_counter = + 1
-            tokens.append(get_token_type(token, prev_token))
-            prev_token = token
+            tokens.append(get_token_type(t, prev_token))
+            prev_token = t
         tokens.append(Token(type=TokenType.NEWLINE))
         token_line_list.append(tokens)
         print(tokens) # TODO: Remove on prod

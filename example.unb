@@ -2,7 +2,7 @@ function sum a b
 let c = a + b
 return c
 
-let a:number=123 b=321
+let a:number=123 b=-321
 print  sum  a b
 
 let message:string='hello  world '
