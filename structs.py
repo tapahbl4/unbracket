@@ -30,3 +30,18 @@ class Token:
 class TokenList(list):
     def extract(self):  # TODO: Add recursive extracting
         return
+
+
+@dataclass
+class Line:
+    pos: int
+    value: TokenList
+
+    def __init__(self, pos, value):
+        self.pos = pos
+        self.value = value
+
+
+class LineList(list):
+    def get_line(self, pos):
+        return

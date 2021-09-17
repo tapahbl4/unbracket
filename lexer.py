@@ -1,5 +1,5 @@
 import re
-from tokens import Token, TokenType, TokenList
+from structs import Token, TokenType, TokenList, LineList, Line
 
 KEYWORDS = ['let', 'function', 'print', 'return', 'import', 'input', 'if', 'then', 'else', 'elif', 'switch', 'case',
             'default', 'for', 'end', 'while', 'do', 'to', 'and', 'or', 'not', 'break', 'continue', 'array']
@@ -18,7 +18,7 @@ regexps = {
 
 
 def parse_tokens(string_list):
-    token_line_list, escaped_strings, escaped_counter, prev_token = [], [], 0, None
+    token_line_list, escaped_strings, escaped_counter, prev_token = LineList(), [], 0, None
     for line in string_list:
         escaped = re.search(regexps['escaped'], line)
         if escaped:
@@ -27,8 +27,7 @@ def parse_tokens(string_list):
         line = re.sub(regexps['escaped'], ESCAPED_STRING, line)
         for op in OPS:
             line = str(line).replace(op, f' %s ' % op)
-        pre_tokens = str(line).split()
-        tokens = TokenList()
+        pre_tokens, tokens, line_pos = str(line).split(), TokenList(), 1
         for t in pre_tokens:
             if t == ESCAPED_STRING:
                 t = escaped_strings[escaped_counter]
@@ -36,8 +35,9 @@ def parse_tokens(string_list):
             tokens.append(get_token_type(t, prev_token))
             prev_token = t
         tokens.append(Token(type=TokenType.NEWLINE))
-        token_line_list.append(tokens)
-        print(tokens) # TODO: Remove on prod
+        token_line_list.append(Line(line_pos, tokens))
+        line_pos += 1
+        print(tokens)  # TODO: Remove on prod
     return token_line_list
 
 

@@ -1,4 +1,4 @@
-from tokens import Token, TokenType, TokenList
+from structs import Token, TokenType, TokenList
 from lexer import get_token_type
 
 
